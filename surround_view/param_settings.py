@@ -1,3 +1,8 @@
+"""
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+用于设置投影区域的各参数
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
 import os
 import cv2
 
@@ -5,13 +10,13 @@ import cv2
 camera_names = ["front", "back", "left", "right"]
 
 # --------------------------------------------------------------------
-# (shift_width, shift_height): how far away the birdview looks outside
-# of the calibration pattern in horizontal and vertical directions
+# (shift_width, shift_height): how far away the birdview looks outside of the calibration pattern in horizontal and vertical directions
+# 这两个参数决定了在鸟瞰图中向标定板的外侧看多远。这两个值越大，鸟瞰图看的范围就越大，相应地远处的物体被投影后的形变也越严重，所以应酌情选择
 shift_w = 300
 shift_h = 300
 
-# size of the gap between the calibration pattern and the car
-# in horizontal and vertical directions
+# size of the gap between the calibration pattern and the car in horizontal and vertical directions
+# 标定板内侧边缘与车辆左右两侧的距离，标定板内侧边缘与车辆前后方的距离
 inn_shift_w = 20
 inn_shift_h = 50
 

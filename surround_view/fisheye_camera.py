@@ -8,26 +8,38 @@ from . import param_settings as settings
 class FisheyeCameraModel(object):
 
     """
-    Fisheye camera model, for undistorting, projecting and flipping camera frames.
+    鱼眼相机模型，用于去畸变，射影变换和翻转相机坐标系
+    Fisheye camera model, for undistorted, projecting and flipping camera frames.
     """
 
     def __init__(self, camera_param_file, camera_name):
-        if not os.path.isfile(camera_param_file):
+        """
+        初始化相机模型, 加载参数
+        :param camera_param_file: 相机参数yaml文件路径
+        :param camera_name: 相机名称
+        """
+
+        if not os.path.isfile(camera_param_file):  # 判断是否是一个文件夹路径
             raise ValueError("Cannot find camera param file")
 
-        if camera_name not in settings.camera_names:
+        if camera_name not in settings.camera_names:  # 判断相机名称是否正确
             raise ValueError("Unknown camera name: {}".format(camera_name))
 
         self.camera_file = camera_param_file
         self.camera_name = camera_name
-        self.scale_xy = (1.0, 1.0)
-        self.shift_xy = (0, 0)
-        self.undistort_maps = None
-        self.project_matrix = None
-        self.project_shape = settings.project_shapes[self.camera_name]
-        self.load_camera_params()
+        self.scale_xy = (1.0, 1.0)  # 校正后画面横纵向缩放比
+        self.shift_xy = (0, 0)  # 矫正后画面中心的横向和纵向平移距离
+        self.undistort_maps = None  # 去畸变矩阵
+        self.project_matrix = None  # 射影矩阵
+        self.project_shape = settings.project_shapes[self.camera_name]  # ?射影形状
+        self.load_camera_params()  # 加载yaml文件参数
 
     def load_camera_params(self):
+        """
+        从yaml文件中加载相机参数
+        :return: none
+        """
+
         fs = cv2.FileStorage(self.camera_file, cv2.FILE_STORAGE_READ)
         self.camera_matrix = fs.getNode("camera_matrix").mat()
         self.dist_coeffs = fs.getNode("dist_coeffs").mat()
