@@ -227,7 +227,6 @@ python run_get_projection_maps.py -camera front -scale 0.7 0.8 -shift -150 -100
 
     在第二个视频的例子中，画面的颜色偏红，加入色彩平衡后画面恢复了正常。
 
-
 # 具体实现的注意事项
 
 
