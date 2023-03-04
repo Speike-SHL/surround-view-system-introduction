@@ -11,14 +11,21 @@ from surround_view import MultiBufferManager, ProjectedImageBuffer
 import surround_view.param_settings as settings
 
 yamls_dir = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [4, 3, 5, 6]  # ?为什么用4356
+camera_ids = [4, 3, 5, 6]  # ? 相机的设备id 为什么用4356
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
-names = settings.camera_names  # ["front", "back", "left", "right"]
+names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
 cameras_files = [os.path.join(yamls_dir, name + ".yaml") for name in names]  # 相机参数的yaml文件
-# 使用FisheyeCameraModel创建语言相机模型对象，传入相机参数yaml文件和相机名称
+# 使用FisheyeCameraModel创建相机模型对象，传入相机参数yaml文件和相机名称
 camera_models = [FisheyeCameraModel(camera_file, name) for camera_file, name in zip(cameras_files, names)]
 
 
+"""
+首先，程序使用CaptureThread类创建了一组线程，每个线程分别绑定到一个相机上，并设置缓冲区大小为8。
+然后，程序创建了一个MultiBufferManager对象来管理这些缓冲区，并开始连接相机并启动线程。
+接着，程序使用CameraProcessingThread类创建了一组线程，每个线程分别绑定到一个相机模型上，并将它们添加到一个ProjectedImageBuffer对象中。
+然后，程序创建了一个BirdView对象，用于生成鸟瞰图，并通过load_weights_and_masks方法加载权重和掩码。
+最后，程序使用cv2库显示鸟瞰图，并实时更新各个相机和鸟瞰图的帧率。
+"""
 def main():
     capture_tds = [CaptureThread(camera_id, flip_method) for camera_id, flip_method in zip(camera_ids, flip_methods)]
     capture_buffer_manager = MultiBufferManager()
