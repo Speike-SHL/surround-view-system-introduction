@@ -30,16 +30,16 @@ class BaseThread(QThread):
             self.stopped = True
 
     def update_fps(self, dt):
-        # 将瞬时的帧value填入队列
+        # 将帧率填充进队列
         if dt > 0:
-            self.fps.put(1000 / dt)
+            self.fps.put(1000 / dt)  # 1000/每帧时间=帧率
 
         # 超出队列长度时丢弃队列中的冗余对象
         if self.fps.qsize() > self.FPS_STAT_QUEUE_LENGTH:
             self.fps.get()
 
         # 更新统计数据
-        if self.fps.qsize() == self.FPS_STAT_QUEUE_LENGTH:
+        if self.fps.qsize() == self.FPS_STAT_QUEUE_LENGTH:  # 帧队列中满的话,就计算一次平均帧率
             while not self.fps.empty():  # 队列不空的话
                 self.fps_sum += self.fps.get()
 

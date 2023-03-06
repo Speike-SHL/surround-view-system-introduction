@@ -9,7 +9,7 @@ QWaitCondition主要有两个方法：wait和wakeAll。调用wait方法会使当
 
 class Buffer(object):
     """
-    缓冲区对象,提供生产者和消费者线程操作缓冲区的一系列方法
+    缓冲区对象,提供生产者和消费者线程操作缓冲区的一系列方法, 生产者线程为 capture_thread, 消费者线程为CameraProcessingThread
     """
     def __init__(self, buffer_size=5):
         self.buffer_size = buffer_size  # 缓冲区大小

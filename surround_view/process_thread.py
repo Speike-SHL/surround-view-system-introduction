@@ -20,7 +20,7 @@ class CameraProcessingThread(BaseThread):
         capture_buffer_manager: `MultiBufferManager` 对象的实例
         device_id: 要处理的相机设备号
         camera_model: `FisheyeCameraModel` 对象的实例
-        drop_if_full: 如果缓存区满,则删除
+        drop_if_full: 缓冲区满是否删除新数据还是等待缓冲区有位置
         """
         super(CameraProcessingThread, self).__init__(parent)
         self.capture_buffer_manager = capture_buffer_manager
@@ -35,15 +35,13 @@ class CameraProcessingThread(BaseThread):
             # 这个线程还没有绑定到任何线程
             raise ValueError("This thread has not been binded to any processing thread yet")
 
-        while True:
-            # ?这一段是干嘛的
-            self.stop_mutex.lock()  # 线程锁
-            if self.stopped:
+        while True:  # 无线循环,处理图像
+            self.stop_mutex.lock()
+            if self.stopped:  # 如果其他地方将stopped改为true,则停止循环,停止处理图像
                 self.stopped = False
                 self.stop_mutex.unlock()
                 break
-            self.stop_mutex.unlock()
-            # ?这一段是干嘛的
+            self.stop_mutex.unlock()  # 前后上锁防止其他线程改变停止信号
 
             # elapsed():计时结束，返回自上次调用start（）或restart（）以来经过的毫秒数。
             self.processing_time = self.clock.elapsed()
