@@ -1,11 +1,15 @@
 import cv2
 import numpy as np
 
-# return -1 if user press 'q'. return 1 if user press 'Enter'.
+
 def display_image(window_title, image):
+    """
+    创建一个窗口显示图片
+    如果用户点击'q',则返回-1; 如果用户点击'Enter'返回1
+    """
     cv2.imshow(window_title, image)
     while True:
-        click = cv2.getWindowProperty(window_title, cv2.WND_PROP_AUTOSIZE)
+        click = cv2.getWindowProperty(window_title, cv2.WND_PROP_AUTOSIZE)  # 检查窗口是否被关闭
         if click < 0:
             return -1
 
@@ -22,13 +26,12 @@ class PointSelector(object):
 
     """
     ---------------------------------------------------
-    | A simple gui point selector.                    |
-    | Usage:                                          |
+    | 一个简单的图像点选择器,用于鼠标点击从图像中选点          |
+    | 使用：                                           |
     |                                                 |
-    | 1. call the `loop` method to show the image.    |
-    | 2. click on the image to select key points,     |
-    |    press `d` to delete the last points.         |
-    | 3. press `q` to quit, press `Enter` to confirm. |
+    | 1. call 'loop' 方法循环显示图像                    |
+    | 2. 点击图像选点, 按压'd'删除最后一个点                |
+    | 3. 点击'q'退出, 点击'Enter'确认                    |
     ---------------------------------------------------
     """
 
