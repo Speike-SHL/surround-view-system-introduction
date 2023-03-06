@@ -54,7 +54,8 @@ class CameraProcessingThread(BaseThread):
             flip_frame = self.camera_model.flip(pro_frame)  # 翻转图像
             self.processing_mutex.unlock()  # 处理线程解锁
 
-            self.proc_buffer_manager.sync(self.device_id)
+            self.proc_buffer_manager.sync(self.device_id)  # 调用ProjectedImageBuffer类的`sync`方法进行线程同步
+            # 将处理后的图像添加到current_frame中对应的device_id上
             self.proc_buffer_manager.set_frame_for_device(self.device_id, flip_frame)
 
             # 更新统计数据
