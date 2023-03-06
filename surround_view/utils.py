@@ -2,14 +2,12 @@ import cv2
 import numpy as np
 
 
-def gstreamer_pipeline(cam_id=0,
-                       capture_width=960,
-                       capture_height=640,
-                       framerate=60,
-                       flip_method=2):
+def gstreamer_pipeline(cam_id=0, capture_width=960, capture_height=640, framerate=60, flip_method=2):
     """
-    Use libgstreamer to open csi-cameras.
+    gstreamer_pipeline：多媒体管道
+    使用 libgstreamer 打开 csi相机
     """
+    # ?gstreamer管道的描述
     return ("nvarguscamerasrc sensor-id={} ! ".format(cam_id) + \
             "video/x-raw(memory:NVMM), "
             "width=(int)%d, height=(int)%d, "
@@ -28,44 +26,45 @@ def gstreamer_pipeline(cam_id=0,
 
 def convert_binary_to_bool(mask):
     """
-    Convert a binary image (only one channel and pixels are 0 or 255) to
-    a bool one (all pixels are 0 or 1).
+    将二进制图像(只有一个通道, 且像素为0或255)转换为二进制(所有像素都为0或1)
     """
-    return (mask.astype(np.float) / 255.0).astype(np.int)
+    return (mask.astype(np.float) / 255.0).astype(np.int)  # 用astype转化数据类型,先转为float,除了后转为整型
 
 
 def adjust_luminance(gray, factor):
     """
-    Adjust the luminance of a grayscale image by a factor.
+    通过一个factor调整灰度图的亮度
     """
-    return np.minimum((gray * factor), 255).astype(np.uint8)
+    return np.minimum((gray * factor), 255).astype(np.uint8)  # ?怎么操作的
 
 
 def get_mean_statistisc(gray, mask):
     """
-    Get the total values of a gray image in a region defined by a mask matrix.
-    The mask matrix must have values either 0 or 1.
+    获取一个由 mask 矩阵定义区域内的灰度图像的总 values
+    这个 mask 矩阵的值必须为0或1
     """
     return np.sum(gray * mask)
 
 
 def mean_luminance_ratio(grayA, grayB, mask):
+    """
+    mask 矩阵定义区域内的总亮度比例
+    """
     return get_mean_statistisc(grayA, mask) / get_mean_statistisc(grayB, mask)
 
 
 def get_mask(img):
     """
-    Convert an image to a mask array.
+    把一个图像转化为 mask 数组
     """
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # 图像转化为灰度图
+    ret, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)  # 转化为 mask 矩阵, 只有0或255的灰度
     return mask
 
 
 def get_overlap_region_mask(imA, imB):
     """
-    Given two images of the save size, get their overlapping region and
-    convert this region to a mask array.
+    给定两张同样大小的图像,获取它们的重叠区域,然后把该区域转化为一个 mask 数组
     """
     overlap = cv2.bitwise_and(imA, imB)
     mask = get_mask(overlap)
@@ -75,8 +74,7 @@ def get_overlap_region_mask(imA, imB):
 
 def get_outmost_polygon_boundary(img):
     """
-    Given a mask image with the mask describes the overlapping region of
-    two images, get the outmost contour of this region.
+    给定一个描述了两个图像重叠区域内的 mask 图像,获取该区域的最外围图像
     """
     mask = get_mask(img)
     mask = cv2.dilate(mask, np.ones((2, 2), np.uint8), iterations=2)
@@ -85,10 +83,10 @@ def get_outmost_polygon_boundary(img):
         cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE)[-2:]
 
-    # get the contour with largest aera
+    # 得到面积最大的轮廓
     C = sorted(cnts, key=lambda x: cv2.contourArea(x), reverse=True)[0]
 
-    # polygon approximation
+    # 多边形近似
     polygon = cv2.approxPolyDP(C, 0.009 * cv2.arcLength(C, True), True)
 
     return polygon
@@ -96,7 +94,7 @@ def get_outmost_polygon_boundary(img):
 
 def get_weight_mask_matrix(imA, imB, dist_threshold=5):
     """
-    Get the weight matrix G that combines two images imA, imB smoothly.
+    得到平滑组合两个图像 A 和 B 的权重矩阵
     """
     overlapMask = get_overlap_region_mask(imA, imB)
     overlapMaskInv = cv2.bitwise_not(overlapMask)
@@ -123,7 +121,7 @@ def get_weight_mask_matrix(imA, imB, dist_threshold=5):
 
 def make_white_balance(image):
     """
-    Adjust white balance of an image base on the means of its channels.
+    根据图像通道的 means 调整其白平衡
     """
     B, G, R = cv2.split(image)
     m1 = np.mean(B)
