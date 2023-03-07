@@ -19,10 +19,10 @@ cameras_files = [os.path.join(yamls_dir, name + ".yaml") for name in names]  # �
 camera_models = [FisheyeCameraModel(camera_file, name) for camera_file, name in zip(cameras_files, names)]
 
 """
-首先，程序使用CaptureThread类创建了一组线程，每个线程分别绑定到一个相机上，并设置缓冲区大小为8。
+首先，程序使用CaptureThread类创建了一组4个线程，每个线程分别绑定到一个相机上，并设置缓冲区大小为8。
 然后，程序创建了一个MultiBufferManager对象来管理这些缓冲区，并开始连接相机并启动线程。
-接着，程序使用CameraProcessingThread类创建了一组线程，每个线程分别绑定到一个相机模型上，并将它们添加到一个ProjectedImageBuffer对象中。
-然后，程序创建了一个BirdView对象，用于生成鸟瞰图，并通过load_weights_and_masks方法加载权重和掩码。
+接着，程序使用CameraProcessingThread类创建了一组4个线程，每个线程分别绑定到一个相机模型上，并将它们添加到一个ProjectedImageBuffer对象中。
+然后，程序创建了一个BirdView线程1个，用于生成鸟瞰图，并通过load_weights_and_masks方法加载权重和掩码。
 最后，程序使用cv2库显示鸟瞰图，并实时更新各个相机和鸟瞰图的帧率。
 """
 
