@@ -412,7 +412,6 @@ class BirdView(BaseThread):
             self.clock.start()
 
             self.processing_mutex.lock()
-
             self.update_frames(self.proc_buffer_manager.get().values())  # 更新当前帧,得到保存了处理后的前后左右四个相机图像的帧
             self.make_luminance_balance().stitch_all_parts()  # 亮度平衡并拼接所有部分
             self.make_white_balance()  # 白平衡
