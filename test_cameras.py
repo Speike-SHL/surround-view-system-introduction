@@ -3,7 +3,7 @@
 import cv2
 import time
 
-# get the installed camera list for initialization.
+# 自动搜索获取安装的相机列表用于初始化
 def get_cam_lst(cam_lst=range(0, 24)):
     arr = []
     for iCam in cam_lst:
@@ -44,12 +44,12 @@ def show_cam_img(caps, cam_list):
             if ret:
                 name = 'video{0}_{1}.png'.format(cam_list[idx],
                             time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime()))
-                cv2.imwrite(name, frame)
+                cv2.imwrite("E:\\front.png", frame) #保存可能有问题，自己指定路径和文件名
                 print("saved file: %s!" %name)
 
     cv2.destroyAllWindows()
 
-def init_caps(cam_list, resolution=(1280,720)):
+def init_caps(cam_list, resolution=(640,480)):
     caps = []
     for iCam in cam_list:
         cap = cv2.VideoCapture(iCam)
@@ -83,8 +83,8 @@ def show_cameras(video_list=None):
     deinit_caps(caps)
 
 if __name__ == "__main__":
-    # User can specify the video list here.
+    # 可以使用如下指令指定打开的相机号
     #show_cameras([2, 6, 10, 14])
 
-    # Or search all available video devices automatically.
+    # 也可以自动搜索全部的相机,`q`退出，`s`保存一张图片，`n`切换下张照片
     show_cameras()

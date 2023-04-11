@@ -16,7 +16,7 @@ class CaptureThread(BaseThread):
                  drop_if_full=True,
                  api_preference=cv2.CAP_GSTREAMER,
                  resolution=None,
-                 use_gst=True,
+                 use_gst=False,
                  parent=None):
         """
         device_id: 相机设备id

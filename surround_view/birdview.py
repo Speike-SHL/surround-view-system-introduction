@@ -11,7 +11,6 @@ from . import utils
 
 
 class ProjectedImageBuffer(object):
-
     """
     用于同步来自不同摄像机的 processing thread
     """
@@ -87,9 +86,12 @@ class ProjectedImageBuffer(object):
         return (self.__class__.__name__ + ":\n" + \
                 "devices: {}\n".format(self.sync_devices))
 
+
 """
 图像数组为,(高,宽)即(y,x),下面几个函数分别将每个相机的图像分为了三部分
 """
+
+
 def FI(front_image):
     """
     front_Image的左
@@ -178,6 +180,7 @@ class BirdView(BaseThread):
     """
     鸟瞰图线程,将处理后的四个相机的图像进行鸟瞰图生成相关的操作
     """
+
     def __init__(self,
                  proc_buffer_manager=None,
                  drop_if_full=True,
@@ -265,7 +268,9 @@ class BirdView(BaseThread):
 
     @property
     def C(self):
-        return self.image[yt:yb, xl:xr]
+        return self.image[int(yt + (yb - yt) / 2 - (yb - yt) / 2 * 1.35):int(yt + (yb - yt) / 2 + (yb - yt) / 2 * 1.35),
+               xl:xr]  # 原来是yb:yt,为了覆盖相机照不到的区域，将car覆盖的区域增大
+        # return self.image[yt:yb, xl:xr]
 
     def stitch_all_parts(self):
         """
@@ -291,6 +296,7 @@ class BirdView(BaseThread):
         """
         亮度平衡
         """
+
         def tune(x):
             if x >= 1:
                 return x * np.exp((1 - x) * 0.5)
@@ -320,13 +326,13 @@ class BirdView(BaseThread):
         d2 = utils.mean_luminance_ratio(FI(Fg), LI(Lg), m1)
         d3 = utils.mean_luminance_ratio(FI(Fr), LI(Lr), m1)
 
-        t1 = (a1 * b1 * c1 * d1)**0.25
-        t2 = (a2 * b2 * c2 * d2)**0.25
-        t3 = (a3 * b3 * c3 * d3)**0.25
+        t1 = (a1 * b1 * c1 * d1) ** 0.25
+        t2 = (a2 * b2 * c2 * d2) ** 0.25
+        t3 = (a3 * b3 * c3 * d3) ** 0.25
 
-        x1 = t1 / (d1 / a1)**0.5
-        x2 = t2 / (d2 / a2)**0.5
-        x3 = t3 / (d3 / a3)**0.5
+        x1 = t1 / (d1 / a1) ** 0.5
+        x2 = t2 / (d2 / a2) ** 0.5
+        x3 = t3 / (d3 / a3) ** 0.5
 
         x1 = tune(x1)
         x2 = tune(x2)
@@ -336,9 +342,9 @@ class BirdView(BaseThread):
         Fg = utils.adjust_luminance(Fg, x2)
         Fr = utils.adjust_luminance(Fr, x3)
 
-        y1 = t1 / (b1 / c1)**0.5
-        y2 = t2 / (b2 / c2)**0.5
-        y3 = t3 / (b3 / c3)**0.5
+        y1 = t1 / (b1 / c1) ** 0.5
+        y2 = t2 / (b2 / c2) ** 0.5
+        y3 = t3 / (b3 / c3) ** 0.5
 
         y1 = tune(y1)
         y2 = tune(y2)
@@ -348,9 +354,9 @@ class BirdView(BaseThread):
         Bg = utils.adjust_luminance(Bg, y2)
         Br = utils.adjust_luminance(Br, y3)
 
-        z1 = t1 / (c1 / d1)**0.5
-        z2 = t2 / (c2 / d2)**0.5
-        z3 = t3 / (c3 / d3)**0.5
+        z1 = t1 / (c1 / d1) ** 0.5
+        z2 = t2 / (c2 / d2) ** 0.5
+        z3 = t3 / (c3 / d3) ** 0.5
 
         z1 = tune(z1)
         z2 = tune(z2)
@@ -360,9 +366,9 @@ class BirdView(BaseThread):
         Lg = utils.adjust_luminance(Lg, z2)
         Lr = utils.adjust_luminance(Lr, z3)
 
-        w1 = t1 / (a1 / b1)**0.5
-        w2 = t2 / (a2 / b2)**0.5
-        w3 = t3 / (a3 / b3)**0.5
+        w1 = t1 / (a1 / b1) ** 0.5
+        w2 = t2 / (a2 / b2) ** 0.5
+        w3 = t3 / (a3 / b3) ** 0.5
 
         w1 = tune(w1)
         w2 = tune(w2)
@@ -401,7 +407,7 @@ class BirdView(BaseThread):
 
         while True:  # 无线循环,处理图像
             self.stop_mutex.lock()
-            if self.stopped:   # 如果其他地方将stopped改为true,则停止循环,停止处理图像
+            if self.stopped:  # 如果其他地方将stopped改为true,则停止循环,停止处理图像
                 self.stopped = False
                 self.stop_mutex.unlock()
                 break

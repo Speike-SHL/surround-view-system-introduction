@@ -43,6 +43,8 @@ def get_mean_statistisc(gray, mask):
     获取一个由 mask 矩阵定义区域内的灰度图像的总 values
     这个 mask 矩阵的值必须为0或1
     """
+    # todo:  这个函数会造成报错，需要处理, 如果鸟瞰图线程启动不加演示，会导致数组维度不一样
+    # print(f"gray.shape: {gray.shape}, mask.shape:{mask.shape}")
     return np.sum(gray * mask)
 
 
@@ -109,9 +111,9 @@ def get_weight_mask_matrix(imA, imB, dist_threshold=5):
     polyB = get_outmost_polygon_boundary(imB_diff)
 
     for y, x in zip(*indices):
-        distToB = cv2.pointPolygonTest(polyB, (x, y), True)
+        distToB = cv2.pointPolygonTest(polyB, (float(x), float(y)), True)
         if distToB < dist_threshold:
-            distToA = cv2.pointPolygonTest(polyA, (x, y), True)
+            distToA = cv2.pointPolygonTest(polyA, (float(x), float(y)), True)
             distToB *= distToB
             distToA *= distToA
             G[y, x] = distToB / (distToA + distToB)

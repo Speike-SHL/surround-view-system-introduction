@@ -44,14 +44,12 @@
 
 其中 PyQt5 主要用来实现多线程，方便将来移植到 Qt 环境。
 
-
 # 项目采用的若干约定
 
 
 为了方便起见，在本项目中四个环视相机分别用 `front`、`back`、`left`、`right` 来指代，并假定其对应的设备号是整数，例如 0, 1, 2, 3。实际开发中请针对具体情况进行修改。
 
 **相机的内参矩阵记作 `camera_matrix`，这是一个 3x3 的矩阵。畸变系数记作 `dist_coeffs`，这是一个 1x4 的向量。相机的投影矩阵记作 `project_matrix`，这是一个 3x3 的射影矩阵。**
-
 
 # 准备工作：获得原始图像与相机内参
 
@@ -131,13 +129,20 @@ yaml文件内内容分别为: <br>
 
 ```bash
 python run_get_projection_maps.py -camera front -scale 0.7 0.8 -shift -150 -100
+
+
+my：
+-camera front -shift -50 0 -scale 1 0.9
+-camera back -shift 0 -20 -scale 0.8 0.8
+-camera left -shift -15 67 -scale 0.7 0.7
+-camera right -shift 0 -38 -scale 0.75 1
 ```
 
-后显示前方相机校正后的画面如下：
+后显示前方相机校正后的画面如下：（==使用的图像，像素要和标定时候选取的分辨率一致==）
 
 <img style="margin:0px auto;display:block" width=600 src="./img/original.png"/>
 
-然后依次点击事先确定好的四个标志点 (顺序不能错！)，得到的效果如下：
+然后依次点击事先确定好的四个标志点 (需要在param_setting.py中修改，顺序不能错！)，得到的效果如下：
 
 <img style="margin:0px auto;display:block" width=600 src="./img/choose_front.png"/>
 
@@ -160,7 +165,6 @@ python run_get_projection_maps.py -camera front -scale 0.7 0.8 -shift -150 -100
 <img style="margin:0px auto;display:block" width=600 src="./img/back_proj.png"/>
 
 对四个相机分别采用此操作，我们就得到了四个相机的鸟瞰图，以及对应的四个投影矩阵。下一步我们的任务是把这四个鸟瞰图拼起来。
-
 
 # 鸟瞰图的拼接与平滑
 

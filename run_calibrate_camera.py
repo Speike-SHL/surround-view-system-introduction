@@ -7,7 +7,7 @@ Usage:
     python calibrate_camera.py \
         -i 0 \
         -grid 9x6 \
-        -out fisheye.yaml \
+        -o fisheye.yaml \
         -framestep 20 \
         --resolution 640x480
         --fisheye
@@ -20,27 +20,29 @@ from surround_view import CaptureThread, MultiBufferManager
 import surround_view.utils as utils
 
 
-# we will save the camera param file to this directory
+# 将把相机参数文件保存到yaml目录
 TARGET_DIR = os.path.join(os.getcwd(), "yaml")
 
-# default param file
+# 默认的文件名为camera_params.yaml
 DEFAULT_PARAM_FILE = os.path.join(TARGET_DIR, "camera_params.yaml")
 
 
 def main():
+    # argparse模块是python用来读取命令行输入参数的模块
     parser = argparse.ArgumentParser()
 
-    # input video stream
+    # 输入视频流
     parser.add_argument("-i", "--input", type=int, default=0,
                         help="input camera device")
 
-    # chessboard pattern size
+    # 棋盘格大小
     parser.add_argument("-grid", "--grid", default="9x6",
                         help="size of the calibrate grid pattern")
 
     parser.add_argument("-r", "--resolution", default="640x480",
                         help="resolution of the camera image")
 
+    # 每framestep读取一帧进行标定
     parser.add_argument("-framestep", type=int, default=20,
                         help="use every nth frame in the video")
 
@@ -61,15 +63,53 @@ def main():
     if not os.path.exists(TARGET_DIR):
         os.mkdir(TARGET_DIR)
 
+    # 设置标定图像左上角的提示字体
     text1 = "press c to calibrate"
     text2 = "press q to quit"
     text3 = "device: {}".format(args.input)
-    font = cv2.FONT_HERSHEY_SIMPLEX
+    font = cv2.FONT_HERSHEY_SIMPLEX  # 字体格式
     fontscale = 0.6
 
+    # 获取分辨率
     resolution_str = args.resolution.split("x")
     W = int(resolution_str[0])
     H = int(resolution_str[1])
+    """
+    获取网格大小，并创建三维的全0数组grid_points储存三维点坐标
+    第三行理解如下：
+    假设用户在命令行中输入了以下参数：--resolution 640x480 -grid 6x4
+    W = 640
+    H = 480
+    grid_size = (6, 4)
+    grid_points = array([[[0., 0., 0.],
+                          [1., 0., 0.],
+                          [2., 0., 0.],
+                          [3., 0., 0.],
+                          [4., 0., 0.],
+                          [5., 0., 0.],
+                          [0., 1., 0.],
+                          [1., 1., 0.],
+                          [2., 1., 0.],
+                          [3., 1., 0.],
+                          [4., 1., 0.],
+                          [5., 1., 0.],
+                          [0., 2., 0.],
+                          [1., 2., 0.],
+                          [2., 2., 0.],
+                          [3., 2., 0.],
+                          [4., 2., 0.],
+                          [5., 2., 0.],
+                          [0., 3., 0.],
+                          [1., 3., 0.],
+                          [2., 3., 0.],
+                          [3., 3., 0.],
+                          [4., 3., 0.],
+                          [5., 3., 0.]]], dtype=float32)
+    这里grid_points是一个形状为(1, 24, 3)的numpy数组，它表示了一个6x4的棋盘格子中每个格子的3D空间坐标。
+    第一维是1表示只有一张棋盘格子图像，第二维是24表示一共有24个格子，第三维是3表示坐标是三维(x, y, z)。
+    grid_points数组的前两列(x,y)分别是这个二维棋盘格子中的每个格子的行坐标和列坐标，第三列(z轴)全部为0，
+    表示所有格子都在棋盘格子的平面上。
+    """
     grid_size = tuple(int(x) for x in args.grid.split("x"))
     grid_points = np.zeros((1, np.prod(grid_size), 3), np.float32)
     grid_points[0, :, :2] = np.indices(grid_size).T.reshape(-1, 2)
@@ -77,7 +117,7 @@ def main():
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane
 
-    device = args.input
+    device = args.input  # 设备号
     cap_thread = CaptureThread(device_id=device,
                                flip_method=args.flip,
                                resolution=(W, H),
@@ -102,26 +142,31 @@ def main():
 
         print("searching for chessboard corners in frame " + str(i) + "...")
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # 寻找标定板角点
         found, corners = cv2.findChessboardCorners(
             gray,
             grid_size,
             cv2.CALIB_CB_ADAPTIVE_THRESH +
             cv2.CALIB_CB_NORMALIZE_IMAGE +
             cv2.CALIB_CB_FILTER_QUADS
+            # cv2.CALIB_CB_FAST_CHECK
         )
         if found:
             term = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_COUNT, 30, 0.01)
             cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), term)
-            print("OK")
             imgpoints.append(corners)
             objpoints.append(grid_points)
+            print(f"OK! you have found {len(objpoints)}, left {12-len(objpoints)}.",)
+            # 在标定板上画圆显示
             cv2.drawChessboardCorners(img, grid_size, corners, found)
 
+        # 在标定图像左上角显示文字
         cv2.putText(img, text1, (20, 70), font, fontscale, (255, 200, 0), 2)
         cv2.putText(img, text2, (20, 110), font, fontscale, (255, 200, 0), 2)
         cv2.putText(img, text3, (20, 30), font, fontscale, (255, 200, 0), 2)
         cv2.imshow("corners", img)
         key = cv2.waitKey(1) & 0xFF
+
         if key == ord("c"):
             print("\nPerforming calibration...\n")
             N_OK = len(objpoints)
@@ -141,6 +186,7 @@ def main():
         cap_thread.disconnect_camera()
         cv2.destroyAllWindows()
 
+    # 做标定
     if do_calib:
         N_OK = len(objpoints)
         K = np.zeros((3, 3))

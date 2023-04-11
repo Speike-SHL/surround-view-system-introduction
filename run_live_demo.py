@@ -9,9 +9,10 @@ from surround_view import CaptureThread, CameraProcessingThread
 from surround_view import FisheyeCameraModel, BirdView
 from surround_view import MultiBufferManager, ProjectedImageBuffer
 import surround_view.param_settings as settings
+import time
 
 yamls_dir = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [4, 3, 5, 6]  # ? 相机的设备id 为什么用4356
+camera_ids = [4, 2, 3, 0]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
 names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
 cameras_files = [os.path.join(yamls_dir, name + ".yaml") for name in names]  # 相机参数的yaml文件
@@ -37,7 +38,10 @@ def main():
         capture_buffer_manager.bind_thread(td, buffer_size=8)
         if td.connect_camera():  # 连接相机
             td.start()  # 开启相机捕获线程
-
+            print("开启一个相机捕获线程")
+        else:
+            print("相机未连接")
+    print("--------------相机捕获线程全部启动成功---------------")
     # 创建图像处理线程的线程管理对象
     proc_buffer_manager = ProjectedImageBuffer()
     # 创建4个图像处理线程
@@ -49,14 +53,18 @@ def main():
     for td in process_tds:
         proc_buffer_manager.bind_thread(td)
         td.start()  # 开启图像处理线程
-
+        time.sleep(0.2)
+        print("开启一个图像处理线程")
+    print("--------------图像处理线程全部启动成功---------------")
     # 创建鸟瞰图处理线程
+    time.sleep(1)  # todo:不知道为什么，如果此处不延时开启线程，会导致矩阵相乘出错，是因为图像处理线程还没来得及处理？
     birdview = BirdView(proc_buffer_manager)
     # 加载权重矩阵和mask矩阵
     birdview.load_weights_and_masks("./weights.png", "./masks.png")
     birdview.start()  # 开启鸟瞰图线程
+    print("----------------鸟瞰图线程启动成功------------------")
     while True:
-        img = cv2.resize(birdview.get(), (300, 400))
+        img = cv2.resize(birdview.get(), (600, 800))
         cv2.imshow("birdview", img)  # 显示鸟瞰图
         key = cv2.waitKey(1) & 0xFF  # 每一毫秒检查一下用户是否按键
         if key == ord("q"):  # 用户按下“q”终止程序运行
