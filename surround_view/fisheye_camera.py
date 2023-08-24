@@ -6,7 +6,6 @@ from . import param_settings as settings
 
 
 class FisheyeCameraModel(object):
-
     """
     鱼眼相机模型，用于去畸变，射影变换和翻转相机坐标系
     Fisheye camera model, for undistorted, projecting and flipping camera frames.

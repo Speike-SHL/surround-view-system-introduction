@@ -268,7 +268,7 @@ class BirdView(BaseThread):
 
     @property
     def C(self):
-        return self.image[int(yt + (yb - yt) / 2 - (yb - yt) / 2 * 1.35):int(yt + (yb - yt) / 2 + (yb - yt) / 2 * 1.35),
+        return self.image[int(yt + (yb - yt) / 2 - (yb - yt) / 2 * 1.4):int(yt + (yb - yt) / 2 + (yb - yt) / 2 * 1.4),
                xl:xr]  # 原来是yb:yt,为了覆盖相机照不到的区域，将car覆盖的区域增大
         # return self.image[yt:yb, xl:xr]
 
@@ -285,6 +285,20 @@ class BirdView(BaseThread):
         np.copyto(self.FR, self.merge(FII(front), RII(right), 1))
         np.copyto(self.BL, self.merge(BIII(back), LIII(left), 2))
         np.copyto(self.BR, self.merge(BIV(back), RIV(right), 3))
+
+    def stitch_all_parts_simple(self):
+        """
+        简单的1/2拼接融合重叠区域
+        """
+        front, back, left, right = self.frames
+        np.copyto(self.F, FM(front))
+        np.copyto(self.B, BM(back))
+        np.copyto(self.L, LM(left))
+        np.copyto(self.R, RM(right))
+        np.copyto(self.FL, (FI(front) * 1 / 2 + LI(left) * 1 / 2).astype(np.uint8))
+        np.copyto(self.FR, (FII(front) * 1 / 2 + RII(right) * 1 / 2).astype(np.uint8))
+        np.copyto(self.BL, (BIII(back) * 1 / 2 + LIII(left) * 1 / 2).astype(np.uint8))
+        np.copyto(self.BR, (BIV(back) * 1 / 2 + RIV(right) * 1 / 2).astype(np.uint8))
 
     def copy_car_image(self):
         """
@@ -419,9 +433,24 @@ class BirdView(BaseThread):
 
             self.processing_mutex.lock()
             self.update_frames(self.proc_buffer_manager.get().values())  # 更新当前帧,得到保存了处理后的前后左右四个相机图像的帧
+            if settings.SAVE_BRIDVIEW_PROCESS:
+                self.stitch_all_parts_simple()
+                self.copy_car_image()
+                tmp_img1 = self.image.copy()
+                self.image = np.zeros((settings.total_h, settings.total_w, 3), np.uint8)
+                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/birdview_merge_half.jpg", tmp_img1)
+                self.stitch_all_parts()
+                self.copy_car_image()
+                tmp_img2 = self.image.copy()
+                self.image = np.zeros((settings.total_h, settings.total_w, 3), np.uint8)
+                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/birdview_without_balance.jpg", tmp_img2)
             self.make_luminance_balance().stitch_all_parts()  # 亮度平衡并拼接所有部分
             self.make_white_balance()  # 白平衡
             self.copy_car_image()  # 添加车的图像
+            if settings.SAVE_BRIDVIEW_PROCESS:
+                tmp_img3 = self.image.copy()
+                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/birdview_with_balance.jpg", tmp_img3)
+                settings.SAVE_BRIDVIEW_PROCESS = False
             self.buffer.add(self.image.copy(), self.drop_if_full)  # 添加处理好的image到缓冲区
             self.processing_mutex.unlock()
 

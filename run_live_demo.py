@@ -12,7 +12,7 @@ import surround_view.param_settings as settings
 import time
 
 yamls_dir = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [4, 2, 3, 0]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
+camera_ids = [0, 3, 4, 1]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
 names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
 cameras_files = [os.path.join(yamls_dir, name + ".yaml") for name in names]  # 相机参数的yaml文件
@@ -29,6 +29,7 @@ camera_models = [FisheyeCameraModel(camera_file, name) for camera_file, name in 
 
 
 def main():
+    out = None  # 鸟瞰图视频流对象
     # 创建4个相机捕获线程
     capture_tds = [CaptureThread(camera_id, flip_method) for camera_id, flip_method in zip(camera_ids, flip_methods)]
     # 创建相机捕获线程的线程管理对象
@@ -64,19 +65,42 @@ def main():
     birdview.start()  # 开启鸟瞰图线程
     print("----------------鸟瞰图线程启动成功------------------")
     while True:
-        img = cv2.resize(birdview.get(), (600, 800))
+        img = cv2.resize(birdview.get(), (settings.WIDTH, settings.HEIGHT))
         cv2.imshow("birdview", img)  # 显示鸟瞰图
+
         key = cv2.waitKey(1) & 0xFF  # 每一毫秒检查一下用户是否按键
         if key == ord("q"):  # 用户按下“q”终止程序运行
             break
+        elif key == ord('s'):  # 用户按下"s"键保存论文所需图像
+            print("saving image----")
+            saveImg()
+        elif key == ord('b'):  # 开始录制拼接后的鸟瞰图
+            print("recording video---")
+            settings.IS_RECORDING = True
+            out = cv2.VideoWriter(f"{settings.WORK_PATH}/paper_need_img/birdview.mp4", cv2.VideoWriter_fourcc(*'MP4V'),
+                                  settings.FPS, (settings.WIDTH, settings.HEIGHT))
+        elif key == ord('n'):  # 按下”n“键停止录制
+            print("stop recording video---")
+            settings.IS_RECORDING = False
+            if out is not None:
+                out.release()
+                out = None
 
-        for td in capture_tds:  # 显示相机捕获线程的设备id和对应平均帧率
-            print("camera {} fps: {}\n".format(td.device_id, td.stat_data.average_fps), end="\r")
+        if settings.IS_RECORDING:
+            if out is not None:
+                out.write(img)
 
-        for td in process_tds:  # 显示图像处理线程的设备id和对应平均帧率
-            print("process {} fps: {}\n".format(td.device_id, td.stat_data.average_fps), end="\r")
-        # 显示鸟瞰图线程的平均帧率
-        print("birdview fps: {}".format(birdview.stat_data.average_fps))
+        # for td in capture_tds:  # 显示相机捕获线程的设备id和对应平均帧率
+        #     print("camera {} fps: {}\n".format(td.device_id, td.stat_data.average_fps), end="\r")
+        #
+        # for td in process_tds:  # 显示图像处理线程的设备id和对应平均帧率
+        #     print("process {} fps: {}\n".format(td.device_id, td.stat_data.average_fps), end="\r")
+        # # 显示鸟瞰图线程的平均帧率
+        # print("birdview fps: {}".format(birdview.stat_data.average_fps))
+
+    if out is not None:
+        out.release()
+    cv2.destroyAllWindows()
 
     for td in process_tds:  # 终止循环时结束线程
         td.stop()
@@ -85,6 +109,13 @@ def main():
         td.stop()
         td.disconnect_camera()
 
+
+# 用于保存论文中所需图片
+def saveImg():
+    settings.SAVE_RAW = 4
+    settings.SAVE_UNDISTORTED = 4
+    settings.SAVE_PROJECTION = 4
+    settings.SAVE_BRIDVIEW_PROCESS = True
 
 if __name__ == "__main__":
     main()
