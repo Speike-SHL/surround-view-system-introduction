@@ -214,7 +214,7 @@ class BirdView(BaseThread):
         加载权重和掩码图片,参数都为路径
         """
         # 先转化为RGBA图像,然后除以255,这步后GMat为(高,宽,RGBA4)的3维数组
-        GMat = np.asarray(Image.open(weights_image).convert("RGBA"), dtype=np.float) / 255.0
+        GMat = np.asarray(Image.open(weights_image).convert("RGBA"), dtype=float) / 255.0
         # 将GMat沿着第三个维度进行拼接,结束后weights是一个四维数组(高,宽,重复三个一样的,RGBA),array(1)~array(4)分别是RGBA
         # array(1)为例, 是R通道的元素, 最小单位是3个一样的单个像素上的R通道值
         # 因为乘权重矩阵时候,是把RGB三个通道上都相乘,所以是三个一样的值
@@ -223,7 +223,7 @@ class BirdView(BaseThread):
                                   GMat[:, :, k]), axis=2)
                         for k in range(4)]
 
-        Mmat = np.asarray(Image.open(masks_image).convert("RGBA"), dtype=np.float)
+        Mmat = np.asarray(Image.open(masks_image).convert("RGBA"), dtype=float)
         Mmat = utils.convert_binary_to_bool(Mmat)
         self.masks = [Mmat[:, :, k] for k in range(4)]  # 三维数组, (高,宽,RGBA)
 
