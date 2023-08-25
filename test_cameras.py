@@ -62,6 +62,7 @@ def init_caps(cam_list, resolution=(640, 480)):
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         cap.set(3, resolution[0])
         cap.set(4, resolution[1])
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         caps.append(cap)
 
     return caps
