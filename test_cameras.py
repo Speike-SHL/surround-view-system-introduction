@@ -5,7 +5,7 @@ import time
 
 
 # 自动搜索获取安装的相机列表用于初始化
-def get_cam_lst(cam_lst=range(0, 24)):
+def get_cam_lst(cam_lst=range(0, 1000)):
     arr = []
     for iCam in cam_lst:
         cap = cv2.VideoCapture(iCam, cv2.CAP_DSHOW)
@@ -16,7 +16,7 @@ def get_cam_lst(cam_lst=range(0, 24)):
             cv2.imshow(f"video{iCam}", frame)
             cv2.waitKey(500)
             arr.append(iCam)
-        # cap.release()
+        cap.release()
     cv2.destroyAllWindows()
     return arr
 
@@ -72,10 +72,14 @@ def init_caps(cam_list, resolution=(640, 480)):
     for iCam in cam_list:
         cap = cv2.VideoCapture(iCam, cv2.CAP_DSHOW)
         # cap = cv2.VideoCapture(iCam)
-        cap.set(3, resolution[0])
-        cap.set(4, resolution[1])
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
+        cap.set(cv2.CAP_PROP_FPS, 5)
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         caps.append(cap)
+
+    for cap in caps:
+        print(f"设备{cap}已打开！，分辨率为{cap.get(3)}*{cap.get(4)}, 帧率为{cap.get(5)}")
 
     return caps
 
