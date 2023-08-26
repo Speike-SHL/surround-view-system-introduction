@@ -6,7 +6,6 @@
 import os
 import cv2
 
-
 camera_names = ["front", "back", "left", "right"]
 
 # --------------------------------------------------------------------
@@ -28,8 +27,8 @@ camera_names = ["front", "back", "left", "right"]
 # xr = total_w - xl
 # yt = shift_h + 200 + inn_shift_h
 # yb = total_h - yt
-shift_w = 60
-shift_h = 60
+shift_w = 100
+shift_h = 100
 inn_shift_w = 2
 inn_shift_h = 53
 total_w = 160 + 2 * shift_w
@@ -43,8 +42,8 @@ yb = total_h - yt
 # 每个相机的射影后图像的宽，长
 project_shapes = {
     "front": (total_w, yt),
-    "back":  (total_w, yt),
-    "left":  (total_h, xl),
+    "back": (total_w, yt),
+    "left": (total_h, xl),
     "right": (total_h, xl)
 }
 
@@ -71,20 +70,20 @@ project_shapes = {
 #               (shift_h + 720, shift_w + 160)]
 # }
 project_keypoints = {
-    "front": [(shift_w + 23,    shift_h),
-              (shift_w + 136,   shift_h),
-              (shift_w + 23,    shift_h + 68),
-              (shift_w + 136,   shift_h + 68)],
+    "front": [(shift_w + 23, shift_h),
+              (shift_w + 136, shift_h),
+              (shift_w + 23, shift_h + 68),
+              (shift_w + 136, shift_h + 68)],
 
-    "back":  [(shift_w + 7.7, shift_h),
-              (shift_w + 152, shift_h),
-              (shift_w + 7.7, shift_h + 89.8),
-              (shift_w + 152, shift_h + 89.8)],
+    "back": [(shift_w + 7.7, shift_h),
+             (shift_w + 152, shift_h),
+             (shift_w + 7.7, shift_h + 89.8),
+             (shift_w + 152, shift_h + 89.8)],
 
-    "left":  [(shift_h + 39, shift_w),
-              (shift_h + 233, shift_w),
-              (shift_h + 39, shift_w + 39),
-              (shift_h + 233, shift_w + 39)],
+    "left": [(shift_h + 39, shift_w),
+             (shift_h + 233, shift_w),
+             (shift_h + 39, shift_w + 39),
+             (shift_h + 233, shift_w + 39)],
 
     "right": [(shift_h + 39, shift_w),
               (shift_h + 233, shift_w),
@@ -92,9 +91,19 @@ project_keypoints = {
               (shift_h + 233, shift_w + 39)]
 }
 
-
-
 # 读取images文件夹下car.png这个图像，并把它大小改为设置的car的大小，即car四个点坐标计算的长宽
 car_image = cv2.imread(os.path.join(os.getcwd(), "images", "car.png"))
-car_image = cv2.resize(car_image, (xr - xl, int(1.35 * (yb - yt))))
+car_image = cv2.resize(car_image, (xr - xl, int(1.4 * (yb - yt))))
 # car_image = cv2.resize(car_image, (xr - xl,yb -yt))
+
+# ----------------------------用于保存图像---------------------------------
+# -------------------不要在这里更改下面的值,主程序会修改-----------------------
+WORK_PATH = os.getcwd()
+SAVE_RAW = 0                    # 是否保存原始图像,process_thread.py
+SAVE_UNDISTORTED = 0            # 是否保存去畸变的图像,process_thread.py
+SAVE_PROJECTION = 0             # 是否保存射影变换后的图像,process_thread.py
+SAVE_BRIDVIEW_PROCESS = False   # 是否保存鸟瞰图处理的对比结果
+IS_RECORDING = False            # 是否保存鸟瞰图视频
+FPS = 30                        # 鸟瞰图视频的帧率, 可根据实际处理速度修改
+WIDTH = 600                     # 鸟瞰图视频的宽
+HEIGHT = 800                    # 鸟瞰图视频的高

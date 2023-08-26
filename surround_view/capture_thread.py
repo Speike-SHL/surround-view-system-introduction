@@ -88,6 +88,7 @@ class CaptureThread(BaseThread):
                 width, height = self.resolution
                 self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
                 self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+                self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
                 # 如果分辨率不支持，某些相机可能会关闭
                 if not self.cap.isOpened():
                     qDebug("Resolution not supported by camera device: {}".format(self.resolution))
@@ -95,6 +96,7 @@ class CaptureThread(BaseThread):
             else:  # 使用默认的分辨率
                 width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
                 self.resolution = (width, height)
 
         return True

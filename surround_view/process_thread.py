@@ -2,10 +2,10 @@ import cv2
 from PyQt5.QtCore import qDebug, QMutex
 
 from .base_thread import BaseThread
+from . import param_settings as settings
 
 
 class CameraProcessingThread(BaseThread):
-
     """
     处理单个相机图像的线程, 如去畸变, 射影, 翻转
     """
@@ -49,8 +49,27 @@ class CameraProcessingThread(BaseThread):
 
             self.processing_mutex.lock()  # 处理线程上锁
             raw_frame = self.capture_buffer_manager.get_device(self.device_id).get()  # 原始图像
+            if settings.SAVE_RAW > 0:
+                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/raw_{self.camera_model.camera_name}.jpg",
+                            raw_frame.image)
+                settings.SAVE_RAW -= 1
+            elif settings.SAVE_RAW < 0:
+                settings.SAVE_RAW = 0
             und_frame = self.camera_model.undistort(raw_frame.image)  # 去畸变
+            if settings.SAVE_UNDISTORTED > 0:   # 存在线程保护的问题
+                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/undistorted_{self.camera_model.camera_name}.jpg",
+                            und_frame)
+                settings.SAVE_UNDISTORTED -= 1
+                print(settings.SAVE_UNDISTORTED)
+            elif settings.SAVE_UNDISTORTED < 0:
+                settings.SAVE_UNDISTORTED = 0
             pro_frame = self.camera_model.project(und_frame)  # 射影变换
+            if settings.SAVE_PROJECTION > 0:
+                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/projection_cut_{self.camera_model.camera_name}.jpg",
+                            pro_frame)
+                settings.SAVE_PROJECTION -= 1
+            elif settings.SAVE_PROJECTION < 0:
+                settings.SAVE_PROJECTION = 0
             flip_frame = self.camera_model.flip(pro_frame)  # 翻转图像
             self.processing_mutex.unlock()  # 处理线程解锁
 

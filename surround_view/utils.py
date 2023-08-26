@@ -28,7 +28,7 @@ def convert_binary_to_bool(mask):
     """
     将二进制图像(只有一个通道, 且像素为0或255)转换为二进制(所有像素都为0或1)
     """
-    return (mask.astype(np.float) / 255.0).astype(np.int)  # 用astype转化数据类型,先转为float,除了后转为整型
+    return (mask.astype(np.float) / 255.0).astype(int)  # 用astype转化数据类型,先转为float,除了后转为整型
 
 
 def adjust_luminance(gray, factor):
@@ -111,9 +111,13 @@ def get_weight_mask_matrix(imA, imB, dist_threshold=5):
     polyB = get_outmost_polygon_boundary(imB_diff)
 
     for y, x in zip(*indices):
-        distToB = cv2.pointPolygonTest(polyB, (float(x), float(y)), True)
+
+        #convert this x,y int an INT tuple
+        xy_tuple = tuple([int(x), int(y)])
+        distToB = cv2.pointPolygonTest(polyB, xy_tuple, True)
+
         if distToB < dist_threshold:
-            distToA = cv2.pointPolygonTest(polyA, (float(x), float(y)), True)
+            distToA = cv2.pointPolygonTest(polyA, xy_tuple, True)
             distToB *= distToB
             distToA *= distToA
             G[y, x] = distToB / (distToA + distToB)
