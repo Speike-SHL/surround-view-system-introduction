@@ -8,14 +8,16 @@ import time
 def get_cam_lst(cam_lst=range(0, 24)):
     arr = []
     for iCam in cam_lst:
-        cap = cv2.VideoCapture(iCam)
+        cap = cv2.VideoCapture(iCam, cv2.CAP_DSHOW)
+        # cap = cv2.VideoCapture(iCam)
         ret, frame = cap.read()
         if ret:
             print(f"设备{iCam}已打开！")
             cv2.imshow(f"video{iCam}", frame)
-            cv2.waitKey(0)
+            cv2.waitKey(500)
             arr.append(iCam)
         # cap.release()
+    cv2.destroyAllWindows()
     return arr
 
 
@@ -24,13 +26,21 @@ def show_cam_img(caps, cam_list):
         "INFO: Press 'q' to quit! Press 's' to save a picture, 'n' to change to next camera device!"
     )
     idx = 0
+    error_count = 0
     while True:
         cap_device = caps[idx]
+        time.sleep(0.1)
         ret, frame = cap_device.read()
         if ret:
             cv2.imshow("video", frame)
         else:
             print("ERROR: failed read frame!")
+            time.sleep(1)
+            error_count += 1
+
+        if error_count > 20:
+            print("ERROR: too many failed read frame!")
+            break
 
         # quit the test
         c = cv2.waitKey(1)
@@ -39,6 +49,7 @@ def show_cam_img(caps, cam_list):
 
         # change to next camera device
         if c == ord("n"):
+            error_count = 0
             idx += 1
             if idx >= len(caps):
                 idx = 0
@@ -60,6 +71,7 @@ def init_caps(cam_list, resolution=(640, 480)):
     caps = []
     for iCam in cam_list:
         cap = cv2.VideoCapture(iCam, cv2.CAP_DSHOW)
+        # cap = cv2.VideoCapture(iCam)
         cap.set(3, resolution[0])
         cap.set(4, resolution[1])
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
