@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+import os
 
 import cv2
 import time
 
 
 # 自动搜索获取安装的相机列表用于初始化
-def get_cam_lst(cam_lst=range(0, 1000)):
+def get_cam_lst(cam_lst=range(0, 24)):
     arr = []
     for iCam in cam_lst:
         cap = cv2.VideoCapture(iCam, cv2.CAP_DSHOW)
@@ -57,12 +58,14 @@ def show_cam_img(caps, cam_list):
 
         # save the picture
         if c == ord("s"):
+            cv2.imwrite("E:\\image1.png", frame)
             if ret:
                 name = "video{0}_{1}.png".format(
                     cam_list[idx], time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
                 )
-                cv2.imwrite("E:\\front.png", frame)  # 保存可能有问题，自己指定路径和文件名
-                print("saved file: %s!" % name)
+                image_name = os.path.join(os.getcwd(), "images", name)
+                cv2.imwrite(image_name, frame)  # 保存可能有问题，自己指定路径和文件名
+                print(f"save file to {image_name}")
 
     cv2.destroyAllWindows()
 

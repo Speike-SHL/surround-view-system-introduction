@@ -28,7 +28,7 @@ def convert_binary_to_bool(mask):
     """
     将二进制图像(只有一个通道, 且像素为0或255)转换为二进制(所有像素都为0或1)
     """
-    return (mask.astype(np.float) / 255.0).astype(int)  # 用astype转化数据类型,先转为float,除了后转为整型
+    return (mask.astype(float) / 255.0).astype(int)  # 用astype转化数据类型,先转为float,除了后转为整型
 
 
 def adjust_luminance(gray, factor):

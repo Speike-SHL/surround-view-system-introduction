@@ -85,7 +85,7 @@ class PointSelector(object):
         press "d" will delete the last selected point.
         Press "Enter" will exist the gui and return True.
         """
-        cv2.namedWindow(self.title)
+        cv2.namedWindow(self.title, cv2.WINDOW_FREERATIO)
         cv2.setMouseCallback(self.title, self.onclick, param=())
         cv2.imshow(self.title, self.image)
 

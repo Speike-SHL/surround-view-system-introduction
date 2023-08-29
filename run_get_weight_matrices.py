@@ -35,7 +35,8 @@ def main():
     if ret > 0:
         Image.fromarray((Gmat * 255).astype(np.uint8)).save("weights.png")
         Image.fromarray(Mmat.astype(np.uint8)).save("masks.png")
-
+        cv2.imwrite("BEV.png",birdview.image)
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()

@@ -268,9 +268,7 @@ class BirdView(BaseThread):
 
     @property
     def C(self):
-        return self.image[int(yt + (yb - yt) / 2 - (yb - yt) / 2 * 1.4):int(yt + (yb - yt) / 2 + (yb - yt) / 2 * 1.4),
-               xl:xr]  # 原来是yb:yt,为了覆盖相机照不到的区域，将car覆盖的区域增大
-        # return self.image[yt:yb, xl:xr]
+        return self.image[yt:yb, xl:xr]
 
     def stitch_all_parts(self):
         """

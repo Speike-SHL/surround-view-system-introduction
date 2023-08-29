@@ -12,7 +12,7 @@ import surround_view.param_settings as settings
 import time
 
 yamls_dir = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [0, 3, 4, 1]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
+camera_ids = [0, 1, 2, 3]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
 names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
 cameras_files = [os.path.join(yamls_dir, name + ".yaml") for name in names]  # 相机参数的yaml文件
@@ -41,7 +41,8 @@ def main():
             td.start()  # 开启相机捕获线程
             print("开启一个相机捕获线程")
         else:
-            print("相机未连接")
+            print("相机未连接,请检查相机是否连接正常")
+            return
     print("--------------相机捕获线程全部启动成功---------------")
     # 创建图像处理线程的线程管理对象
     proc_buffer_manager = ProjectedImageBuffer()

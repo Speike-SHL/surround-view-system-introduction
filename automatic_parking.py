@@ -24,7 +24,7 @@ from psdet.utils.common import get_logger
 from psdet.models.builder import build_model
 
 yaml_dirs = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [701, 702, 703, 704]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
+camera_ids = [0, 1, 2, 3]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
 names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
 cameras_files = [os.path.join(yaml_dirs, name + ".yaml") for name in names]  # 相机参数的yaml文件
@@ -84,7 +84,7 @@ def main():
         # 用模型检测车位
         img, parkings_points = get_parkingslot(img)
 
-        cv2.imshow("birdview", img)  # 显示鸟瞰图
+        cv2.imshow("birdview with parkinglot", img)  # 显示鸟瞰图
 
         key = cv2.waitKey(1) & 0xFF  # 每一毫秒检查一下用户是否按键
         if key == ord("q"):  # 用户按下“q”终止程序运行
@@ -114,7 +114,7 @@ def main():
         # for td in process_tds:  # 显示图像处理线程的设备id和对应平均帧率
         #     print("process {} fps: {}\n".format(td.device_id, td.stat_data.average_fps), end="\r")
         # 显示鸟瞰图线程的平均帧率
-        print("birdview fps: {}".format(birdview.stat_data.average_fps))
+        print(f"birdview fps: {birdview.stat_data.average_fps:.2f}", end="\r", flush=True)
 
     if out is not None:
         out.release()
@@ -211,11 +211,11 @@ def get_parkingslot(image):
         image = image0 / 255.
         data_dict = {'image': torch.from_numpy(image).float().permute(2, 0, 1).unsqueeze(0).cuda()}
         pred_dicts, ret_dict = model(data_dict)
-        print(f"模型车位检测耗时：{time.time() - start_time}")
+        print(f"模型车位检测耗时：{time.time() - start_time:.6f} s",end="\t")
         # 绘制车位检测结果
         start_time = time.time()
         image, parkings_points = draw_parking_slot(image0, pred_dicts)
-        print(f"绘制车位检测结果耗时：{time.time() - start_time}")
+        print(f"绘制车位检测结果耗时：{time.time() - start_time:.6f} s", end="\t")
     return image, parkings_points
 
 
