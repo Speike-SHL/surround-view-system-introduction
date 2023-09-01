@@ -131,6 +131,10 @@ dmypy.json
 .pyre/
 
 
-datasets/parking_slot/*
+datasets/parking_slot/ps_json_label/*
+datasets/parking_slot/ps2.0/*
+datasets/parking_slot/testing/*
+datasets/parking_slot/training/*
 .idea
 *.pth
+.vscode/*

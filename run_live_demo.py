@@ -12,12 +12,14 @@ import surround_view.param_settings as settings
 import time
 
 yamls_dir = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [0, 1, 2, 3]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
+camera_ids = [6, 4, 0, 2]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
 names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
-cameras_files = [os.path.join(yamls_dir, name + ".yaml") for name in names]  # 相机参数的yaml文件
+cameras_files = [os.path.join(yamls_dir, name + ".yaml")
+                 for name in names]  # 相机参数的yaml文件
 # 使用FisheyeCameraModel创建4个相机模型对象，传入相机参数yaml文件和相机名称
-camera_models = [FisheyeCameraModel(camera_file, name) for camera_file, name in zip(cameras_files, names)]
+camera_models = [FisheyeCameraModel(camera_file, name)
+                 for camera_file, name in zip(cameras_files, names)]
 
 """
 首先，程序使用CaptureThread类创建了一组4个线程，每个线程分别绑定到一个相机上，并设置缓冲区大小为8。
@@ -31,7 +33,8 @@ camera_models = [FisheyeCameraModel(camera_file, name) for camera_file, name in 
 def main():
     out = None  # 鸟瞰图视频流对象
     # 创建4个相机捕获线程
-    capture_tds = [CaptureThread(camera_id, flip_method) for camera_id, flip_method in zip(camera_ids, flip_methods)]
+    capture_tds = [CaptureThread(camera_id, flip_method)
+                   for camera_id, flip_method in zip(camera_ids, flip_methods)]
     # 创建相机捕获线程的线程管理对象
     capture_buffer_manager = MultiBufferManager()
     # 把4个相机捕获线程绑定到线程管理对象上
@@ -70,7 +73,6 @@ def main():
         img = cv2.resize(birdview.get(), (settings.WIDTH, settings.HEIGHT))
         cv2.imshow("birdview", img)  # 显示鸟瞰图
 
-
         key = cv2.waitKey(1) & 0xFF  # 每一毫秒检查一下用户是否按键
         if key == ord("q"):  # 用户按下“q”终止程序运行
             break
@@ -98,8 +100,10 @@ def main():
         elif key == ord('b'):  # 开始录制拼接后的鸟瞰图
             print("recording video---")
             settings.IS_RECORDING = True
-            out = cv2.VideoWriter(f"{settings.WORK_PATH}/paper_need_img/birdview.mp4", cv2.VideoWriter_fourcc(*'MP4V'),
-                                  settings.FPS, (settings.WIDTH, settings.HEIGHT))
+            # out = cv2.VideoWriter(f"{settings.WORK_PATH}/paper_need_img/birdview.MP4", cv2.VideoWriter_fourcc(*'mp4v'),
+            #                       settings.FPS, (settings.WIDTH, settings.HEIGHT))
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+            out = cv2.VideoWriter('test.mp4', fourcc, settings.FPS, (settings.WIDTH, settings.HEIGHT))
         elif key == ord('n'):  # 按下”n“键停止录制
             print("stop recording video---")
             settings.IS_RECORDING = False
@@ -147,11 +151,14 @@ def saveImg():
     settings.SAVE_BRIDVIEW_PROCESS = True
 
 # 用于保存论文中所需图片
+
+
 def saveImg():
     settings.SAVE_RAW = 4
     settings.SAVE_UNDISTORTED = 4
     settings.SAVE_PROJECTION = 4
     settings.SAVE_BRIDVIEW_PROCESS = True
+
 
 if __name__ == "__main__":
     main()

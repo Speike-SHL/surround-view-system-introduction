@@ -10,20 +10,20 @@ camera_names = ["front", "back", "left", "right"]
 
 # --------------------------------------------------------------------
 # 这两个参数决定了在鸟瞰图中向标定板的外侧看多远。这两个值越大，鸟瞰图看的范围就越大，相应地远处的物体被投影后的形变也越严重，所以应酌情选择
-shift_w = 100
-shift_h = 100
+shift_w = 200  # 100
+shift_h = 200  # 100
 # 标定布的长宽
-calibration_w = 510
-calibration_h = 771
+calibration_w = 508
+calibration_h = 770
 # 拼接后图像的总宽和高
 total_w = calibration_w + 2 * shift_w
 total_h = calibration_h + 2 * shift_h
 # 标定板内侧边缘与车辆左右两侧的距离，标定板内侧边缘与车辆前后方的距离
 inn_shift_w = 25
-inn_shift_h = 109
+inn_shift_h = 110
 # 标定布环状部分的宽度, 即标定布两个矩形组成的环状部分
-ring_w = 151
-ring_h = 151
+ring_w = 150
+ring_h = 150
 # 整个鸟瞰图左上角为原点，车辆四个角在鸟瞰图中的位置，(xl,yt),(xr,yt),(xl,yb),(xr,yb)
 xl = shift_w + ring_w + inn_shift_w
 xr = total_w - xl
@@ -41,25 +41,25 @@ project_shapes = {
 
 # 计算射影矩阵时选取的关键点，在运行get_projection_map.py时，需要按顺序在图中点击下面的点
 project_keypoints = {
-    "front": [(shift_w + 125, shift_h + 25),
-              (shift_w + 385, shift_h + 25),
-              (shift_w + 125, shift_h + 125),
-              (shift_w + 385, shift_h + 125)],
+    "front": [(shift_w + 124, shift_h + 25),
+              (shift_w + 383, shift_h + 25),
+              (shift_w + 124, shift_h + 124),
+              (shift_w + 383, shift_h + 124)],
 
     "back": [(shift_w + 125, shift_h + 25),
-             (shift_w + 385, shift_h + 25),
-             (shift_w + 125, shift_h + 125),
-             (shift_w + 385, shift_h + 125)],
+             (shift_w + 384, shift_h + 25),
+             (shift_w + 125, shift_h + 124),
+             (shift_w + 384, shift_h + 124)],
 
-    "left": [(shift_h + 227, shift_w + 25),
-             (shift_h + 564, shift_w + 25),
-             (shift_h + 227, shift_w + 125),
-             (shift_h + 564, shift_w + 125)],
+    "left": [(shift_h + 204, shift_w + 25),
+             (shift_h + 542, shift_w + 25),
+             (shift_h + 204, shift_w + 125),
+             (shift_h + 542, shift_w + 125)],
 
-    "right": [(shift_h + 206, shift_w + 25),
-              (shift_h + 542, shift_w + 25),
-              (shift_h + 206, shift_w + 125),
-              (shift_h + 542, shift_w + 125)]
+    "right": [(shift_h + 227, shift_w + 25),
+              (shift_h + 567, shift_w + 25),
+              (shift_h + 227, shift_w + 124),
+              (shift_h + 567, shift_w + 124)]
 }
 # project_keypoints = {
 #     "front": [(shift_w + 23, shift_h),

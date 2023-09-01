@@ -9,7 +9,8 @@ def display_image(window_title, image):
     """
     cv2.imshow(window_title, image)
     while True:
-        click = cv2.getWindowProperty(window_title, cv2.WND_PROP_AUTOSIZE)  # 检查窗口是否被关闭
+        click = cv2.getWindowProperty(
+            window_title, cv2.WND_PROP_AUTOSIZE)  # 检查窗口是否被关闭
         if click < 0:
             return -1
 
@@ -52,14 +53,14 @@ class PointSelector(object):
 
         # draw the selected keypoints
         for i, pt in enumerate(self.keypoints):
-            cv2.circle(new_image, pt, 6, self.POINT_COLOR, -1)
+            cv2.circle(new_image, pt, 2, self.POINT_COLOR, -1)
             cv2.putText(new_image, str(i), (pt[0], pt[1] - 15),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.POINT_COLOR, 2)
 
         # draw a line if there are two points
         if len(self.keypoints) == 2:
             p1, p2 = self.keypoints
-            cv2.line(new_image, p1, p2, self.POINT_COLOR, 2)
+            cv2.line(new_image, p1, p2, self.POINT_COLOR, 1)
 
         # draw the convex hull if there are more than two points
         if len(self.keypoints) > 2:

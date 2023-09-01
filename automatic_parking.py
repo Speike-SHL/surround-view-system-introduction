@@ -24,7 +24,7 @@ from psdet.utils.common import get_logger
 from psdet.models.builder import build_model
 
 yaml_dirs = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [0, 1, 2, 3]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
+camera_ids = [6, 4, 0, 2]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
 names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
 cameras_files = [os.path.join(yaml_dirs, name + ".yaml") for name in names]  # 相机参数的yaml文件
@@ -83,6 +83,7 @@ def main():
         # ---------------NEW-----------------
         # 用模型检测车位
         img, parkings_points = get_parkingslot(img)
+        img = cv2.resize(img, (settings.WIDTH, settings.HEIGHT))
 
         cv2.imshow("birdview with parkinglot", img)  # 显示鸟瞰图
 
