@@ -436,18 +436,18 @@ class BirdView(BaseThread):
                 self.copy_car_image()
                 tmp_img1 = self.image.copy()
                 self.image = np.zeros((settings.total_h, settings.total_w, 3), np.uint8)
-                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/birdview_merge_half.jpg", tmp_img1)
+                cv2.imwrite(f"{settings.IMAGE_SAVE_PATH}/birdview_merge_half.jpg", tmp_img1)
                 self.stitch_all_parts()
                 self.copy_car_image()
                 tmp_img2 = self.image.copy()
                 self.image = np.zeros((settings.total_h, settings.total_w, 3), np.uint8)
-                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/birdview_without_balance.jpg", tmp_img2)
+                cv2.imwrite(f"{settings.IMAGE_SAVE_PATH}/birdview_without_balance.jpg", tmp_img2)
             self.make_luminance_balance().stitch_all_parts()  # 亮度平衡并拼接所有部分
             self.make_white_balance()  # 白平衡
             self.copy_car_image()  # 添加车的图像
             if settings.SAVE_BRIDVIEW_PROCESS:
                 tmp_img3 = self.image.copy()
-                cv2.imwrite(f"{settings.WORK_PATH}/paper_need_img/birdview_with_balance.jpg", tmp_img3)
+                cv2.imwrite(f"{settings.IMAGE_SAVE_PATH}/birdview_with_balance.jpg", tmp_img3)
                 settings.SAVE_BRIDVIEW_PROCESS = False
             self.buffer.add(self.image.copy(), self.drop_if_full)  # 添加处理好的image到缓冲区
             self.processing_mutex.unlock()

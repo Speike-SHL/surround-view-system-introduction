@@ -24,7 +24,7 @@ from psdet.utils.common import get_logger
 from psdet.models.builder import build_model
 
 yaml_dirs = os.path.join(os.getcwd(), "yaml")  # yaml文件的路径
-camera_ids = [6, 4, 0, 2]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
+camera_ids = [0, 1, 2, 3]  # ? 相机的设备id 为什么用4356,是从test_cameras.py中读出来的，每次都有不同
 flip_methods = [0, 2, 0, 2]  # 0表示不变，2表示180度翻转
 names = settings.camera_names  # 相机名称,["front", "back", "left", "right"]
 cameras_files = [os.path.join(yaml_dirs, name + ".yaml") for name in names]  # 相机参数的yaml文件
@@ -77,6 +77,7 @@ def main():
     birdview.load_weights_and_masks("./weights.png", "./masks.png")
     birdview.start()  # 开启鸟瞰图线程
     print("----------------鸟瞰图线程启动成功------------------")
+    print("按下“q”键退出程序，按下“i”键保存各线程过程图片，按下“r”键开始录制拼接后的鸟瞰图，按下“s”键停止录制")
     while True:
         img = cv2.resize(birdview.get(), (settings.WIDTH, settings.HEIGHT))
 
@@ -87,17 +88,18 @@ def main():
 
         cv2.imshow("birdview with parkinglot", img)  # 显示鸟瞰图
 
-        key = cv2.waitKey(1) & 0xFF  # 每一毫秒检查一下用户是否按键
-        if key == ord("q"):  # 用户按下“q”终止程序运行
+        key = cv2.waitKey(1) & 0xFF     # 每一毫秒检查一下用户是否按键
+        if key == ord("q"):             # 用户按下“q”终止程序运行
             break
-        elif key == ord('i'):  # 用户按下"i"键保存图像
-            print("saving image----")
+        elif key == ord('i'):           # 用户按下"i"键保存图像
+            print(f"saving image----, save_path:{settings.IMAGE_SAVE_PATH}")
             saveImg()
-        elif key == ord('r'):  # 开始录制拼接后的鸟瞰图
-            print("recording video---")
+        elif key == ord('r'):           # 开始录制拼接后的鸟瞰图
             settings.IS_RECORDING = True
-            out = cv2.VideoWriter(f"{settings.WORK_PATH}/paper_need_img/birdview.mp4", cv2.VideoWriter_fourcc(*'MP4V'),
-                                  settings.FPS, (settings.WIDTH, settings.HEIGHT))
+            name = "video{0}.mp4".format(time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime()))
+            video_name = os.path.join(os.getcwd(), "images", name)
+            out = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'MP4V'),settings.FPS, (settings.WIDTH, settings.HEIGHT))
+            print(f"recording video to {video_name}")
         elif key == ord('s'):  # 按下”s“键停止录制
             print("stop recording video---")
             settings.IS_RECORDING = False
@@ -114,8 +116,8 @@ def main():
         #
         # for td in process_tds:  # 显示图像处理线程的设备id和对应平均帧率
         #     print("process {} fps: {}\n".format(td.device_id, td.stat_data.average_fps), end="\r")
-        # 显示鸟瞰图线程的平均帧率
-        print(f"birdview fps: {birdview.stat_data.average_fps:.2f}", end="\r", flush=True)
+        # # 显示鸟瞰图线程的平均帧率
+        # print(f"birdview fps: {birdview.stat_data.average_fps:.2f}", end="\r", flush=True)
 
     if out is not None:
         out.release()
@@ -148,14 +150,14 @@ def draw_parking_slot(image, pred_dicts):
 
     width = 512  # 图像的宽 进模型前被resize成了512
     height = 512  # 图像的高 进模型前被resize成了512
-    VSLOT_MIN_DIST = 0.044771278151623496
-    VSLOT_MAX_DIST = 0.1099427457599304
-    HSLOT_MIN_DIST = 0.15057789144568634
-    HSLOT_MAX_DIST = 0.44449496544202816
+    VSLOT_MIN_DIST = 0.044771278151623496   # 纵向车位入口的最小长度   #TODO 修改
+    VSLOT_MAX_DIST = 0.1099427457599304     # 纵向车位入口的最大长度
+    HSLOT_MIN_DIST = 0.15057789144568634    # 横向车位入口的最小长度
+    HSLOT_MAX_DIST = 0.44449496544202816    # 横向车位入口的最大长度
 
-    SHORT_SEPARATOR_LENGTH = 0.199519231
-    LONG_SEPARATOR_LENGTH = 0.46875
-    junctions = []
+    SHORT_SEPARATOR_LENGTH = 0.199519231    # 横向车位侧线的长度
+    LONG_SEPARATOR_LENGTH = 0.46875         # 纵向车位侧线的长度     #TODO 修改
+    junctions = []                          # 保存每个车位入口线的两个端点，最后用于画出circle
     parkings_points = {}  # ---------------NEW-----------------
     for j in range(len(slots_pred[0])):
         position = slots_pred[0][j][1]

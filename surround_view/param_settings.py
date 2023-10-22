@@ -19,8 +19,9 @@ calibration_h = 770
 total_w = calibration_w + 2 * shift_w
 total_h = calibration_h + 2 * shift_h
 # 标定板内侧边缘与车辆左右两侧的距离，标定板内侧边缘与车辆前后方的距离
-inn_shift_w = 25
-inn_shift_h = 110
+# 如果中间有阴影可以适当的调小下面两个，不过要重新运行run_get_projection_map.py和run_get_weights_matrices.py
+inn_shift_w = 18#25
+inn_shift_h = 80#110
 # 标定布环状部分的宽度, 即标定布两个矩形组成的环状部分
 ring_w = 150
 ring_h = 150
@@ -61,27 +62,6 @@ project_keypoints = {
               (shift_h + 227, shift_w + 124),
               (shift_h + 567, shift_w + 124)]
 }
-# project_keypoints = {
-#     "front": [(shift_w + 23, shift_h),
-#               (shift_w + 136, shift_h),
-#               (shift_w + 23, shift_h + 68),
-#               (shift_w + 136, shift_h + 68)],
-#
-#     "back": [(shift_w + 7.7, shift_h),
-#              (shift_w + 152, shift_h),
-#              (shift_w + 7.7, shift_h + 89.8),
-#              (shift_w + 152, shift_h + 89.8)],
-#
-#     "left": [(shift_h + 39, shift_w),
-#              (shift_h + 233, shift_w),
-#              (shift_h + 39, shift_w + 39),
-#              (shift_h + 233, shift_w + 39)],
-#
-#     "right": [(shift_h + 39, shift_w),
-#               (shift_h + 233, shift_w),
-#               (shift_h + 39, shift_w + 39),
-#               (shift_h + 233, shift_w + 39)]
-# }
 
 # 读取images文件夹下car.png这个图像，并把它大小改为设置的car的大小，即car四个点坐标计算的长宽
 car_image = cv2.imread(os.path.join(os.getcwd(), "images", "car.png"))
@@ -90,6 +70,7 @@ car_image = cv2.resize(car_image, (xr - xl, yb - yt))
 # ----------------------------用于保存图像---------------------------------
 # -------------------不要在这里更改下面的值,主程序会修改-----------------------
 WORK_PATH = os.getcwd()
+IMAGE_SAVE_PATH = os.path.join(WORK_PATH, "images")
 SAVE_RAW = 0  # 是否保存原始图像,process_thread.py
 SAVE_UNDISTORTED = 0  # 是否保存去畸变的图像,process_thread.py
 SAVE_PROJECTION = 0  # 是否保存射影变换后的图像,process_thread.py
